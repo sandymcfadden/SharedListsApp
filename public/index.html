@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Lists - Simple Collaborative Lists</title>
+    <link rel="stylesheet" href="/assets/landing.css">
+    <link rel="prefetch" href="/manage/">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="header-left">
+                <a href="/" class="logo-link">
+                    <div class="logo-icon">
+                        <svg class="logo-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                    <span class="logo-text">Shared Lists</span>
+                </a>
+            </div>
+            <div class="header-right">
+                <a href="/manage/#/lists" class="get-started-link">Launch App</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="landing-container">
+        <header class="hero">
+            <h1>Shared Lists</h1>
+            <p class="tagline">Simple, collaborative lists for everyone</p>
+            <div class="invite-notice">
+                <p><strong>Invite Only</strong> - This is a private beta system. Need access?</p>
+                <p>Email <a href="mailto:sandymc@gmail.com">sandymc@gmail.com</a> to request an invite.</p>
+            </div>
+        </header>
+
+        <main class="features">
+            <div class="feature">
+                <h3>📝 Offline-First</h3>
+                <p>Works without internet connection. Perfect for grocery shopping!</p>
+            </div>
+            <div class="feature">
+                <h3>🤝 Real-time Collaboration</h3>
+                <p>Multiple people can edit lists simultaneously without data loss.</p>
+            </div>
+            <div class="feature">
+                <h3>📱 Cross-Platform</h3>
+                <p>Works on any device with a web browser. No app installation needed.</p>
+            </div>
+            <div class="feature">
+                <h3>🔄 Smart Sync</h3>
+                <p>Automatic conflict resolution ensures no data loss, even when multiple people edit simultaneously.</p>
+            </div>
+        </main>
+
+        <!-- Video Demo Section -->
+        <section class="video-demo">
+            <h2>See It In Action</h2>
+            <p class="video-description">Watch a quick demo of how Shared Lists works</p>
+            <div class="video-container">
+                <iframe 
+                    src="https://www.youtube.com/embed/ITQb-f0biFE" 
+                    title="Shared Lists Demo" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </section>
+
+        <div class="cta">
+            <button id="launch-app" class="primary-button">
+                Start Using Shared Lists
+            </button>
+        </div>
+
+        <section class="tech-section">
+            <div class="tech-container">
+                <h2>Built with Modern Technologies</h2>
+                <p class="tech-intro">This app represents a deep dive into cutting-edge web technologies and software architecture patterns.</p>
+                
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <h4>🔄 Yjs</h4>
+                        <p>Real-time collaborative editing with conflict-free replicated data types (CRDTs)</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>🗄️ Supabase</h4>
+                        <p>Backend-as-a-Service with real-time subscriptions and PostgreSQL</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>⚛️ React + TypeScript</h4>
+                        <p>Modern frontend with type safety and component-based architecture</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>🏗️ Clean Architecture</h4>
+                        <p>Dependency injection, service layers, and separation of concerns</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>💾 IndexedDB</h4>
+                        <p>Client-side storage for offline-first functionality</p>
+                    </div>
+                    <div class="tech-item">
+                        <h4>🔄 Background Sync</h4>
+                        <p>Intelligent synchronization with conflict resolution and queue management</p>
+                    </div>
+                </div>
+                
+                <div class="learning-note">
+                    <p><strong>Learning Project:</strong> This application serves as an exploration of modern web development patterns, real-time collaboration, and scalable software architecture.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="main-footer">
+            <div class="footer-container">
+                <p class="footer-text">
+                    Built by <strong>Sandy McFadden</strong> • 
+                    <a href="https://github.com/sandymcfadden/SharedListsApp" target="_blank" rel="noopener noreferrer" class="github-link">
+                        View on GitHub
+                    </a> • 
+                    <span class="open-source">Open Source</span>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/assets/landing.js"></script>
+</body>
+</html>
