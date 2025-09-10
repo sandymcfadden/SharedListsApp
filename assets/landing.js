@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Add some subtle animations
-    const features = document.querySelectorAll('.feature, .invite-notice');
+    const features = document.querySelectorAll('.feature, .invite-notice, .video-demo');
     features.forEach((feature, index) => {
         feature.style.opacity = '0';
         feature.style.transform = 'translateY(20px)';
