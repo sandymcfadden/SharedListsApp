@@ -36,6 +36,21 @@ function App() {
     [serviceContainer]
   );
 
+  // Handle user identification for analytics (PostHog)
+  useEffect(() => {
+    if (user) {
+      // Identify user in logging service (PostHog will handle this, Console will no-op)
+      logger.identifyUser(user.id, {
+        email: user.email,
+        display_name: user.displayName,
+        avatar_url: user.avatarUrl,
+      });
+    } else {
+      // Reset user identification on sign out
+      logger.resetUser();
+    }
+  }, [user, logger]);
+
   useEffect(() => {
     // Only initialize app when user is authenticated and not already initialized
     if (!user || authLoading || isInitialized) {

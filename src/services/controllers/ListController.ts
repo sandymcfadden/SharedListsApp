@@ -146,6 +146,11 @@ export class ListController {
         listId: listId,
       });
 
+      // 5. Track event for analytics
+      this.logger.captureEvent('list_created', {
+        has_description: !!description,
+      });
+
       this.logger.infoSync(`Created new list: ${listId} with name: ${name}`);
       return listId;
     } catch (error) {
@@ -206,6 +211,9 @@ export class ListController {
         timestamp: new Date(),
         listId: listId,
       });
+
+      // 6. Track event for analytics
+      this.logger.captureEvent('list_deleted');
 
       this.logger.infoSync(`Deleted list: ${listId}`);
     } catch (error) {
@@ -281,6 +289,9 @@ export class ListController {
         timestamp: new Date(),
         listId: listId,
       });
+
+      // 5. Track event for analytics
+      this.logger.captureEvent('item_added');
 
       this.logger.infoSync(`Added item to list ${listId}: ${text}`);
     } catch (error) {
@@ -503,6 +514,9 @@ export class ListController {
         listId: listId,
         itemId: itemId,
       });
+
+      // 5. Track event for analytics
+      this.logger.captureEvent('item_toggled');
 
       this.logger.infoSync(`Toggled item ${itemId} in list ${listId}`);
     } catch (error) {
@@ -1306,6 +1320,9 @@ export class ListController {
         timestamp: new Date(),
         listId: listId,
       });
+
+      // 5. Track event for analytics
+      this.logger.captureEvent('items_cleared');
 
       this.logger.infoSync(`Cleared completed items from list ${listId}`);
     } catch (error) {
