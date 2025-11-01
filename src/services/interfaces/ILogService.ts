@@ -20,4 +20,8 @@ export interface ILogService {
   infoSync(message: string, ...args: any[]): void;
   warnSync(message: string, ...args: any[]): void;
   errorSync(message: string, ...args: any[]): void;
+
+  // User identification methods (no-op for non-analytics implementations)
+  identifyUser(userId: string, properties?: Record<string, any>): void;
+  resetUser(): void;
 }

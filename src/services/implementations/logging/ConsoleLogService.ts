@@ -100,4 +100,18 @@ export class ConsoleLogService implements ILogService {
       console.error(`❌ ${message} ${callerInfo}`, ...args);
     }
   }
+
+  /**
+   * No-op for console logging - user identification not needed
+   */
+  identifyUser(_userId: string, _properties?: Record<string, any>): void {
+    // No-op for console logging
+  }
+
+  /**
+   * No-op for console logging - user reset not needed
+   */
+  resetUser(): void {
+    // No-op for console logging
+  }
 }

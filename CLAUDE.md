@@ -155,6 +155,28 @@ PostHog events are captured with properties including:
 - `category` (for sync-related logs)
 - `args` (serialized additional arguments)
 
+### User Identification in PostHog
+
+The `ILogService` interface includes `identifyUser()` and `resetUser()` methods for analytics tracking:
+
+```typescript
+// In App.tsx - automatically called on auth state change
+logger.identifyUser(user.id, {
+  email: user.email,
+  display_name: user.displayName,
+  avatar_url: user.avatarUrl,
+});
+
+// On sign out
+logger.resetUser();
+```
+
+**Implementation details**:
+- **PostHogLogService**: Calls `posthog.identify()` and `posthog.reset()` to track authenticated users
+- **ConsoleLogService**: No-op implementations (does nothing)
+
+This pattern ensures user identification only happens when using PostHog logging, without needing conditional checks throughout the codebase. The auth flow in [App.tsx](src/App.tsx:39-52) automatically handles identification when users sign in/out.
+
 ## Important Patterns
 
 ### Adding a New List Operation

@@ -134,4 +134,20 @@ export class PostHogLogService implements ILogService {
       this.captureEvent('error', message, args, { category: 'sync' });
     }
   }
+
+  /**
+   * Identify a user in PostHog
+   * This associates all future events with this user
+   */
+  identifyUser(userId: string, properties?: Record<string, any>): void {
+    posthog.identify(userId, properties);
+  }
+
+  /**
+   * Reset PostHog user identification
+   * Call this on sign out to ensure the next user session is tracked separately
+   */
+  resetUser(): void {
+    posthog.reset();
+  }
 }
