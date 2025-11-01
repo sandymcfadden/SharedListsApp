@@ -51,6 +51,25 @@ export default defineConfig(({ mode }) => {
         });
       },
     },
+    // Custom build plugin to replace env vars in public/index.html
+    {
+      name: 'replace-env-in-public-html',
+      closeBundle() {
+        // Process index.html in dist folder
+        const indexPath = path.resolve('dist/index.html');
+        if (fs.existsSync(indexPath)) {
+          let html = fs.readFileSync(indexPath, 'utf-8');
+
+          // Replace environment variables
+          html = html.replace(/%(\w+)%/g, (_match, envVar) => {
+            return env[envVar] || '';
+          });
+
+          fs.writeFileSync(indexPath, html);
+          console.log('Replaced environment variables in dist/index.html');
+        }
+      },
+    },
     // Custom build plugin for app routing
     {
       name: 'move-app-html',
