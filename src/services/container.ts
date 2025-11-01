@@ -21,6 +21,7 @@ import { SupabaseRealtimeService } from '@/services/implementations/realtime/Sup
 
 import { ListController } from '@/services/controllers/ListController';
 import { ConsoleLogService } from '@/services/implementations/logging/ConsoleLogService';
+import { PostHogLogService } from '@/services/implementations/logging/PostHogLogService';
 import { BackgroundSyncService } from '@/services/implementations/sync/BackgroundSyncService';
 import { RemoteUpdateHandler } from '@/services/implementations/realtime/RemoteUpdateHandler';
 import { ConnectionMonitor } from '@/services/implementations/connection/ConnectionMonitor';
@@ -182,6 +183,11 @@ export class ServiceContainer {
       switch (this.config.logging.type) {
         case 'console':
           this.logServiceInstance = new ConsoleLogService(
+            this.config.logging.level
+          );
+          break;
+        case 'posthog':
+          this.logServiceInstance = new PostHogLogService(
             this.config.logging.level
           );
           break;

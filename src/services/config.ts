@@ -16,7 +16,7 @@ export interface AppConfig {
     type: 'supabase';
   };
   logging: {
-    type: 'console';
+    type: 'console' | 'posthog';
     level: LogLevel;
     enabled: boolean;
   };
@@ -38,7 +38,7 @@ const defaultConfig: AppConfig = {
     type: 'supabase',
   },
   logging: {
-    type: 'console',
+    type: 'posthog',
     level: LogLevel.ERROR,
     enabled: true,
   },
@@ -74,6 +74,23 @@ export function validateConfig(config: AppConfig): string[] {
     }
     if (!config.auth.apiKey) {
       errors.push('Supabase API key is required when using Supabase backend');
+    }
+  }
+
+  // Validate logging configuration
+  if (config.logging.type === 'posthog') {
+    const posthogKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
+    const posthogHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST;
+
+    if (!posthogKey) {
+      errors.push(
+        'PostHog API key (VITE_PUBLIC_POSTHOG_KEY) is required when using PostHog logging'
+      );
+    }
+    if (!posthogHost) {
+      errors.push(
+        'PostHog host (VITE_PUBLIC_POSTHOG_HOST) is required when using PostHog logging'
+      );
     }
   }
 
