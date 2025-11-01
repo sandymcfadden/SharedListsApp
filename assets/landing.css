@@ -178,7 +178,8 @@ body {
   margin-top: 2rem;
 }
 
-.primary-button {
+.primary-button,
+.secondary-button {
   background: white;
   color: #667eea;
   border: none;
@@ -191,12 +192,14 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.primary-button:hover {
+.primary-button:hover,
+.secondary-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-.primary-button:active {
+.primary-button:active,
+.secondary-button:active {
   transform: translateY(0);
 }
 
