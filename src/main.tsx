@@ -4,10 +4,22 @@ import { HashRouter } from 'react-router-dom';
 import App from './App.tsx';
 import './index.css';
 
+import { PostHogProvider } from 'posthog-js/react';
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <HashRouter>
-      <App />
-    </HashRouter>
+    <PostHogProvider
+      apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
+      options={{
+        api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+        defaults: '2025-05-24',
+        capture_exceptions: true,
+        debug: import.meta.env.MODE === 'development',
+      }}
+    >
+      <HashRouter>
+        <App />
+      </HashRouter>
+    </PostHogProvider>
   </React.StrictMode>
 );
