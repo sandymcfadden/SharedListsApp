@@ -177,6 +177,62 @@ logger.resetUser();
 
 This pattern ensures user identification only happens when using PostHog logging, without needing conditional checks throughout the codebase. The auth flow in [App.tsx](src/App.tsx:39-52) automatically handles identification when users sign in/out.
 
+### Landing Page PostHog Integration
+
+PostHog is also integrated on the landing page (`public/index.html`) for tracking anonymous visitors and A/B testing:
+
+**Environment variable replacement**: The Vite config includes an `env-replacement` plugin that replaces `%VITE_PUBLIC_POSTHOG_KEY%` and `%VITE_PUBLIC_POSTHOG_HOST%` placeholders in HTML files during build.
+
+**Events tracked on landing page** (see [landing.js](public/assets/landing.js)):
+- `launch_app_clicked` - User clicked "Launch App" button
+- `demo_video_viewed` - User scrolled to video section (tracked via IntersectionObserver)
+- `invite_request_clicked` - User clicked "Request Invite" button (when survey feature flag enabled)
+- `invite_request_submitted` - User submitted email via prompt (fallback when survey not configured)
+
+**Feature flag: `beta-signup-survey`**
+- **When enabled**: Shows "Request an Invite" button that triggers PostHog survey
+- **When disabled**: Shows email link (`mailto:sandymc@gmail.com`)
+- Checked in `public/assets/landing.js` via `posthog.isFeatureEnabled('beta-signup-survey')`
+
+To configure the survey in PostHog dashboard:
+1. Create a survey with type "Popover"
+2. Set trigger to appear when `invite_request_clicked` event is captured
+3. Add questions (e.g., email, intended use case)
+4. Enable the `beta-signup-survey` feature flag to activate
+
+### Event Tracking
+
+The `ILogService` interface includes a `captureEvent()` method for tracking user actions and business events:
+
+```typescript
+// In ListController or other services
+this.logger.captureEvent('list_created', {
+  has_description: true,
+});
+
+this.logger.captureEvent('item_toggled');
+```
+
+**Implementation details**:
+- **PostHogLogService**: Calls `posthog.capture(eventName, properties)` to track events in PostHog
+- **ConsoleLogService**: Logs events to console with `📊 Event:` prefix for debugging
+
+**Event naming convention**: Use `noun_verb` format (e.g., `list_created`, `item_toggled`, `items_cleared`)
+
+**Currently tracked events** (see [ListController.ts](src/services/controllers/ListController.ts)):
+- `list_created` - When a user creates a new list (includes `has_description` property)
+- `list_deleted` - When a user deletes a list
+- `item_added` - When a user adds an item to a list
+- `item_toggled` - When a user marks an item as complete/incomplete
+- `items_cleared` - When a user clears all completed items from a list
+
+**Guidelines for adding new events**:
+- Track user actions, not system events
+- Avoid including sensitive data (list titles, item content, user names)
+- Use boolean/numeric properties for aggregation (e.g., `has_description: true` instead of `description: "text"`)
+- Keep property names consistent across events (e.g., always use `item_count` not `itemCount` or `num_items`)
+- Always capture events, regardless of log level
+
 ## Important Patterns
 
 ### Adding a New List Operation

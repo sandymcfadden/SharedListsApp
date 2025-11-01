@@ -1,19 +1,49 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
 
-export default defineConfig({
-  plugins: [
+export default defineConfig(({ mode }) => {
+  // Load env file based on `mode` in the current working directory.
+  const env = loadEnv(mode, process.cwd(), '');
+
+  return {
+    plugins: [
+      // Custom plugin to replace environment variables in HTML files
+      {
+        name: 'env-replacement',
+        transformIndexHtml(html: string) {
+          // Replace %ENV_VAR% patterns with actual environment values
+          return html.replace(/%(\w+)%/g, (_match, envVar) => {
+            return env[envVar] || '';
+          });
+        },
+        configureServer(server) {
+          // Also handle env replacement for files in public/ directory during dev
+          server.middlewares.use((req, res, next) => {
+            if (req.url === '/index.html' || req.url === '/') {
+              const filePath = path.resolve('public/index.html');
+              let html = fs.readFileSync(filePath, 'utf-8');
+
+              // Replace environment variables
+              html = html.replace(/%(\w+)%/g, (_match, envVar) => {
+                return env[envVar] || '';
+              });
+
+              res.setHeader('Content-Type', 'text/html');
+              res.end(html);
+              return;
+            }
+            next();
+          });
+        },
+      },
     // Custom dev routing plugin
     {
       name: 'dev-routing',
       configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-          if (req.url === '/') {
-            // Serve landing page at root during development
-            req.url = '/index.html';
-          } else if (req.url?.startsWith('/manage') && !req.url.includes('.')) {
+        server.middlewares.use((req, _res, next) => {
+          if (req.url?.startsWith('/manage') && !req.url.includes('.')) {
             // Serve React app for /manage routes during development
             req.url = '/app.html';
           }
@@ -61,4 +91,5 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react', 'react-dom', 'yjs'],
   },
+  };
 });

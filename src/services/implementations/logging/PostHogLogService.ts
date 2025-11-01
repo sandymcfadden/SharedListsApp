@@ -45,7 +45,7 @@ export class PostHogLogService implements ILogService {
     return '';
   }
 
-  private captureEvent(
+  private captureLogEvent(
     level: string,
     message: string,
     args: any[],
@@ -88,50 +88,50 @@ export class PostHogLogService implements ILogService {
 
   debug(message: string, ...args: any[]): void {
     if (this.level <= LogLevel.DEBUG) {
-      this.captureEvent('debug', message, args);
+      this.captureLogEvent('debug', message, args);
     }
   }
 
   info(message: string, ...args: any[]): void {
     if (this.level <= LogLevel.INFO) {
-      this.captureEvent('info', message, args);
+      this.captureLogEvent('info', message, args);
     }
   }
 
   warn(message: string, ...args: any[]): void {
     if (this.level <= LogLevel.WARN) {
-      this.captureEvent('warn', message, args);
+      this.captureLogEvent('warn', message, args);
     }
   }
 
   error(message: string, ...args: any[]): void {
     if (this.level <= LogLevel.ERROR) {
-      this.captureEvent('error', message, args);
+      this.captureLogEvent('error', message, args);
     }
   }
 
   // Convenience methods for sync-related logging
   debugSync(message: string, ...args: any[]): void {
     if (this.level <= LogLevel.DEBUG) {
-      this.captureEvent('debug', message, args, { category: 'sync' });
+      this.captureLogEvent('debug', message, args, { category: 'sync' });
     }
   }
 
   infoSync(message: string, ...args: any[]): void {
     if (this.level <= LogLevel.INFO) {
-      this.captureEvent('info', message, args, { category: 'sync' });
+      this.captureLogEvent('info', message, args, { category: 'sync' });
     }
   }
 
   warnSync(message: string, ...args: any[]): void {
     if (this.level <= LogLevel.WARN) {
-      this.captureEvent('warn', message, args, { category: 'sync' });
+      this.captureLogEvent('warn', message, args, { category: 'sync' });
     }
   }
 
   errorSync(message: string, ...args: any[]): void {
     if (this.level <= LogLevel.ERROR) {
-      this.captureEvent('error', message, args, { category: 'sync' });
+      this.captureLogEvent('error', message, args, { category: 'sync' });
     }
   }
 
@@ -149,5 +149,13 @@ export class PostHogLogService implements ILogService {
    */
   resetUser(): void {
     posthog.reset();
+  }
+
+  /**
+   * Capture a custom event in PostHog
+   * Use for tracking user actions and business events
+   */
+  captureEvent(eventName: string, properties?: Record<string, any>): void {
+    posthog.capture(eventName, properties);
   }
 }

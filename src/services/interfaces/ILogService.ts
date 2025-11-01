@@ -24,4 +24,7 @@ export interface ILogService {
   // User identification methods (no-op for non-analytics implementations)
   identifyUser(userId: string, properties?: Record<string, any>): void;
   resetUser(): void;
+
+  // Event tracking (no-op for non-analytics implementations)
+  captureEvent(eventName: string, properties?: Record<string, any>): void;
 }

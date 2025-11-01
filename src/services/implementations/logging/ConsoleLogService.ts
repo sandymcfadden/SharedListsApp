@@ -114,4 +114,12 @@ export class ConsoleLogService implements ILogService {
   resetUser(): void {
     // No-op for console logging
   }
+
+  /**
+   * Capture a custom event - logs to console for debugging
+   */
+  captureEvent(eventName: string, properties?: Record<string, any>): void {
+    const callerInfo = this.getCallerInfo();
+    console.log(`📊 Event: ${eventName} ${callerInfo}`, properties || {});
+  }
 }

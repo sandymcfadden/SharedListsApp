@@ -6,6 +6,30 @@
     <title>Shared Lists - Simple Collaborative Lists</title>
     <link rel="stylesheet" href="/assets/landing.css">
     <link rel="prefetch" href="/manage/">
+
+    <!-- PostHog Analytics -->
+    <script>
+        // Only load PostHog if environment variables are set
+        (function() {
+            const POSTHOG_KEY = '%VITE_PUBLIC_POSTHOG_KEY%';
+            const POSTHOG_HOST = '%VITE_PUBLIC_POSTHOG_HOST%';
+
+            // Skip if env vars not replaced (will be replaced during build)
+            if (POSTHOG_KEY.startsWith('%') || !POSTHOG_KEY) {
+                console.log('PostHog not configured for landing page');
+                return;
+            }
+
+            !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+            posthog.init(POSTHOG_KEY, {
+                api_host: POSTHOG_HOST,
+                opt_in_site_apps: true,
+                loaded: function(posthog) {
+                    console.log('PostHog loaded on landing page');
+                }
+            });
+        })();
+    </script>
 </head>
 <body>
     <!-- Navigation Header -->
@@ -33,7 +57,10 @@
             <p class="tagline">Simple, collaborative lists for everyone</p>
             <div class="invite-notice">
                 <p><strong>Invite Only</strong> - This is a private beta system. Need access?</p>
-                <p>Email <a href="mailto:sandymc@gmail.com">sandymc@gmail.com</a> to request an invite.</p>
+                <p id="invite-email-option">Email <a href="mailto:sandymc@gmail.com">sandymc@gmail.com</a> to request an invite.</p>
+                <p id="invite-survey-option" style="display: none;">
+                    <button id="request-invite-btn" class="secondary-button">Request an Invite</button>
+                </p>
             </div>
         </header>
 
