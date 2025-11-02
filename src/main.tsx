@@ -13,7 +13,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       options={{
         api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
         defaults: '2025-05-24',
-        capture_exceptions: true,
+        capture_exceptions: {
+          capture_unhandled_errors: true,
+          capture_unhandled_rejections: true,
+          capture_console_errors: true,
+        },
         debug: import.meta.env.MODE === 'development',
       }}
     >
