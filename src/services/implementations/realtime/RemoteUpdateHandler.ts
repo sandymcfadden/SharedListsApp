@@ -61,7 +61,6 @@ export class RemoteUpdateHandler {
       // Subscribe to list updates (for creations and deletions)
       this.realtimeService.subscribeToListUpdates(
         async (update: RealtimeUpdate) => {
-          console.log('>>>>>>>>>RealtimeUpdate', update);
           try {
             if (update.eventType === 'INSERT' && update.record) {
               // Handle new list creation

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PasswordRecoveryForm } from '@/components/auth/PasswordRecoveryForm';
 import { useAuth } from '@/hooks/useAuth';
-import { parseHashParams, hasRecoveryParams } from '@/utils/urlUtils';
+import { hasRecoveryParams } from '@/utils/urlUtils';
 
 export function PasswordResetPage() {
   const navigate = useNavigate();
@@ -15,17 +15,9 @@ export function PasswordResetPage() {
 
   useEffect(() => {
     // Check if there are valid recovery parameters in the URL
-    const hashParams = parseHashParams();
-
-    console.log('Full URL hash:', window.location.hash);
-    console.log('Parsed hash params:', hashParams);
-    console.log('Has recovery params:', hasRecoveryParams());
-
     if (hasRecoveryParams()) {
-      console.log('Recovery parameters found:', hashParams);
       setIsValidSession(true);
     } else {
-      console.log('No valid recovery parameters found');
       setIsValidSession(false);
     }
 
