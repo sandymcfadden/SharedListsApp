@@ -57,10 +57,46 @@
             <p class="tagline">Simple, collaborative lists for everyone</p>
             <div class="invite-notice">
                 <p><strong>Invite Only</strong> - This is a private beta system. Need access?</p>
-                <p id="invite-email-option">Email <a href="mailto:sandymc@gmail.com">sandymc@gmail.com</a> to request an invite.</p>
-                <p id="invite-survey-option" style="display: none;">
+
+                <!-- Request Access Button -->
+                <div id="invite-button-container">
                     <button id="request-invite-btn" class="secondary-button">Request an Invite</button>
-                </p>
+                </div>
+
+                <!-- Invite Request Form (hidden by default) -->
+                <div id="invite-form-container" style="display: none;">
+                    <form id="invite-form">
+                        <div class="form-group">
+                            <input
+                                type="text"
+                                id="invite-name"
+                                name="name"
+                                placeholder="Your Name"
+                                required
+                                class="form-input"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <input
+                                type="email"
+                                id="invite-email"
+                                name="email"
+                                placeholder="Your Email"
+                                required
+                                class="form-input"
+                            />
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="submit-button" id="submit-invite-btn">
+                                Submit Request
+                            </button>
+                            <button type="button" class="cancel-button" id="cancel-invite-btn">
+                                Cancel
+                            </button>
+                        </div>
+                        <div id="form-message" class="form-message" style="display: none;"></div>
+                    </form>
+                </div>
             </div>
         </header>
 
