@@ -1,8 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     const launchButton = document.getElementById('launch-app');
-    const emailOption = document.getElementById('invite-email-option');
-    const surveyOption = document.getElementById('invite-survey-option');
     const requestInviteBtn = document.getElementById('request-invite-btn');
+    const inviteButtonContainer = document.getElementById('invite-button-container');
+    const inviteFormContainer = document.getElementById('invite-form-container');
+    const inviteForm = document.getElementById('invite-form');
+    const cancelInviteBtn = document.getElementById('cancel-invite-btn');
+    const formMessage = document.getElementById('form-message');
+    const submitInviteBtn = document.getElementById('submit-invite-btn');
+
+    // Get Supabase configuration from the environment (replaced during build)
+    const SUPABASE_URL = '%VITE_SUPABASE_URL%';
+    const SUPABASE_ANON_KEY = '%VITE_SUPABASE_ANON_KEY%';
 
     // Launch app button
     if (launchButton) {
@@ -17,63 +25,141 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Check feature flag for beta signup survey
+    let useSurvey = false;
+
     function checkBetaSignupSurveyFlag() {
         if (window.posthog) {
             // Wait for feature flags to load
             window.posthog.onFeatureFlags(function() {
-                const useSurvey = window.posthog.isFeatureEnabled('beta-signup-survey');
-                if (useSurvey) {
-                    // Show survey button, hide email
-                    if (emailOption) emailOption.style.display = 'none';
-                    if (surveyOption) surveyOption.style.display = 'block';
-                } else {
-                    // Keep email option (default)
-                    if (emailOption) emailOption.style.display = 'block';
-                    if (surveyOption) surveyOption.style.display = 'none';
-                }
+                useSurvey = window.posthog.isFeatureEnabled('beta-signup-survey');
+                console.log('Feature flag beta-signup-survey:', useSurvey);
             });
-        } else {
-            // PostHog not loaded, show email option (default)
-            if (emailOption) emailOption.style.display = 'block';
-            if (surveyOption) surveyOption.style.display = 'none';
         }
     }
 
-    // Request invite button handler
+    // Request invite button - show survey or form based on feature flag
     if (requestInviteBtn) {
-        requestInviteBtn.addEventListener('click', async function() {
+        requestInviteBtn.addEventListener('click', function() {
+            // Track that button was clicked
             if (window.posthog) {
-                // Track that button was clicked
                 window.posthog.capture('invite_request_clicked');
+            }
 
+            if (useSurvey && window.posthog) {
+                // Try to show PostHog survey
                 try {
-                    // Get all active surveys
                     window.posthog.getSurveys((surveys) => {
                         const survey = surveys.find(s => s.name === 'Beta Sign-Up');
                         if (survey) {
-                            window.posthog.displaySurvey(survey.id, '#invite-survey-option');
+                            window.posthog.displaySurvey(survey.id, '#invite-button-container');
                         } else {
-                            console.log('No beta-signup-survey found, showing email fallback');
-                            showEmailFallback();
+                            console.log('No Beta Sign-Up survey found, showing custom form');
+                            showCustomForm();
                         }
                     });
                 } catch (error) {
                     console.error('Error loading survey:', error);
-                    showEmailFallback();
+                    showCustomForm();
                 }
             } else {
-                // PostHog not loaded, show email option immediately
-                showEmailFallback();
+                // Show custom form
+                showCustomForm();
             }
         });
     }
 
-    // Helper function to show email fallback
-    function showEmailFallback() {
-        if (emailOption && surveyOption) {
-            surveyOption.style.display = 'none';
-            emailOption.style.display = 'block';
-        }
+    // Helper function to show custom form
+    function showCustomForm() {
+        inviteButtonContainer.style.display = 'none';
+        inviteFormContainer.style.display = 'block';
+    }
+
+    // Cancel button - hide form
+    if (cancelInviteBtn) {
+        cancelInviteBtn.addEventListener('click', function() {
+            // Hide form, show button
+            inviteFormContainer.style.display = 'none';
+            inviteButtonContainer.style.display = 'block';
+
+            // Reset form
+            inviteForm.reset();
+            formMessage.style.display = 'none';
+        });
+    }
+
+    // Form submission
+    if (inviteForm) {
+        inviteForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('invite-name').value.trim();
+            const email = document.getElementById('invite-email').value.trim();
+
+            // Disable submit button and show loading state
+            submitInviteBtn.disabled = true;
+            submitInviteBtn.textContent = 'Sending...';
+            formMessage.style.display = 'none';
+
+            try {
+                // Check if Supabase config is available
+                if (!SUPABASE_URL || SUPABASE_URL.startsWith('%') || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.startsWith('%')) {
+                    throw new Error('Supabase configuration not available');
+                }
+
+                // Call Supabase Edge Function
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/resend`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({ name, email })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Success
+                    if (window.posthog) {
+                        window.posthog.capture('invite_request_submitted', {
+                            success: true
+                        });
+                    }
+
+                    formMessage.textContent = 'Request submitted successfully! We\'ll be in touch soon.';
+                    formMessage.className = 'form-message success';
+                    formMessage.style.display = 'block';
+
+                    // Reset form after short delay
+                    setTimeout(() => {
+                        inviteForm.reset();
+                        inviteFormContainer.style.display = 'none';
+                        inviteButtonContainer.style.display = 'block';
+                        formMessage.style.display = 'none';
+                    }, 3000);
+                } else {
+                    // Error from API
+                    throw new Error(result.error || 'Failed to submit request');
+                }
+            } catch (error) {
+                console.error('Error submitting invite request:', error);
+
+                if (window.posthog) {
+                    window.posthog.capture('invite_request_submitted', {
+                        success: false,
+                        error: error.message
+                    });
+                }
+
+                formMessage.textContent = 'Failed to submit request. Please try again or email sandymc@gmail.com directly.';
+                formMessage.className = 'form-message error';
+                formMessage.style.display = 'block';
+            } finally {
+                // Re-enable submit button
+                submitInviteBtn.disabled = false;
+                submitInviteBtn.textContent = 'Submit Request';
+            }
+        });
     }
 
     // Track video interactions

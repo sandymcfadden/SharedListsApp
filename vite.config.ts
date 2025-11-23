@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      // Custom plugin to replace environment variables in HTML files
+      // Custom plugin to replace environment variables in HTML and JS files
       {
         name: 'env-replacement',
         transformIndexHtml(html: string) {
@@ -34,81 +34,121 @@ export default defineConfig(({ mode }) => {
               res.end(html);
               return;
             }
+
+            // Handle JS files in assets directory
+            if (req.url?.startsWith('/assets/') && req.url?.endsWith('.js')) {
+              const filePath = path.resolve('public', req.url.slice(1));
+              if (fs.existsSync(filePath)) {
+                let js = fs.readFileSync(filePath, 'utf-8');
+
+                // Replace environment variables
+                js = js.replace(/%(\w+)%/g, (_match, envVar) => {
+                  return env[envVar] || '';
+                });
+
+                res.setHeader('Content-Type', 'application/javascript');
+                res.end(js);
+                return;
+              }
+            }
             next();
           });
         },
       },
-    // Custom dev routing plugin
-    {
-      name: 'dev-routing',
-      configureServer(server) {
-        server.middlewares.use((req, _res, next) => {
-          if (req.url?.startsWith('/manage') && !req.url.includes('.')) {
-            // Serve React app for /manage routes during development
-            req.url = '/app.html';
-          }
-          next();
-        });
-      },
-    },
-    // Custom build plugin to replace env vars in public/index.html
-    {
-      name: 'replace-env-in-public-html',
-      closeBundle() {
-        // Process index.html in dist folder
-        const indexPath = path.resolve('dist/index.html');
-        if (fs.existsSync(indexPath)) {
-          let html = fs.readFileSync(indexPath, 'utf-8');
-
-          // Replace environment variables
-          html = html.replace(/%(\w+)%/g, (_match, envVar) => {
-            return env[envVar] || '';
+      // Custom dev routing plugin
+      {
+        name: 'dev-routing',
+        configureServer(server) {
+          server.middlewares.use((req, _res, next) => {
+            if (req.url?.startsWith('/manage') && !req.url.includes('.')) {
+              // Serve React app for /manage routes during development
+              req.url = '/app.html';
+            }
+            next();
           });
+        },
+      },
+      // Custom build plugin to replace env vars in public files
+      {
+        name: 'replace-env-in-public-files',
+        closeBundle() {
+          // Process index.html in dist folder
+          const indexPath = path.resolve('dist/index.html');
+          if (fs.existsSync(indexPath)) {
+            let html = fs.readFileSync(indexPath, 'utf-8');
 
-          fs.writeFileSync(indexPath, html);
-          console.log('Replaced environment variables in dist/index.html');
-        }
-      },
-    },
-    // Custom build plugin for app routing
-    {
-      name: 'move-app-html',
-      closeBundle() {
-        const from = path.resolve('dist/app.html');
-        const toDir = path.resolve('dist/manage');
-        const to = path.join(toDir, 'index.html');
+            // Replace environment variables
+            html = html.replace(/%(\w+)%/g, (_match, envVar) => {
+              return env[envVar] || '';
+            });
 
-        if (!fs.existsSync(toDir)) fs.mkdirSync(toDir);
-        if (fs.existsSync(from)) fs.renameSync(from, to);
+            fs.writeFileSync(indexPath, html);
+            console.log('Replaced environment variables in dist/index.html');
+          }
+
+          // Process JS files in dist/assets folder
+          const assetsDir = path.resolve('dist/assets');
+          if (fs.existsSync(assetsDir)) {
+            const jsFiles = fs
+              .readdirSync(assetsDir)
+              .filter(file => file.endsWith('.js'));
+
+            jsFiles.forEach(file => {
+              const filePath = path.join(assetsDir, file);
+              let js = fs.readFileSync(filePath, 'utf-8');
+
+              // Replace environment variables
+              js = js.replace(/%(\w+)%/g, (_match, envVar) => {
+                return env[envVar] || '';
+              });
+
+              fs.writeFileSync(filePath, js);
+              console.log(
+                `Replaced environment variables in dist/assets/${file}`
+              );
+            });
+          }
+        },
+      },
+      // Custom build plugin for app routing
+      {
+        name: 'move-app-html',
+        closeBundle() {
+          const from = path.resolve('dist/app.html');
+          const toDir = path.resolve('dist/manage');
+          const to = path.join(toDir, 'index.html');
+
+          if (!fs.existsSync(toDir)) fs.mkdirSync(toDir);
+          if (fs.existsSync(from)) fs.renameSync(from, to);
+        },
+      },
+      react(),
+    ],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+        '@/components': path.resolve(__dirname, './src/components'),
+        '@/services': path.resolve(__dirname, './src/services'),
+        '@/hooks': path.resolve(__dirname, './src/hooks'),
+        '@/pages': path.resolve(__dirname, './src/pages'),
+        '@/config': path.resolve(__dirname, './src/config'),
+        '@/types': path.resolve(__dirname, './src/types'),
+        '@/utils': path.resolve(__dirname, './src/utils'),
       },
     },
-    react(),
-  ],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@/components': path.resolve(__dirname, './src/components'),
-      '@/services': path.resolve(__dirname, './src/services'),
-      '@/hooks': path.resolve(__dirname, './src/hooks'),
-      '@/pages': path.resolve(__dirname, './src/pages'),
-      '@/config': path.resolve(__dirname, './src/config'),
-      '@/types': path.resolve(__dirname, './src/types'),
-      '@/utils': path.resolve(__dirname, './src/utils'),
-    },
-  },
-  build: {
-    rollupOptions: {
-      input: {
-        app: path.resolve(__dirname, 'app.html'),
+    build: {
+      rollupOptions: {
+        input: {
+          app: path.resolve(__dirname, 'app.html'),
+        },
       },
     },
-  },
-  server: {
-    port: 3000,
-    open: false,
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'yjs'],
-  },
+    server: {
+      port: 3000,
+      open: false,
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'yjs'],
+    },
   };
 });
