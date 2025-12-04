@@ -1,4 +1,5 @@
 const RESEND_API_KEY = Deno.env.get('RESEND_API');
+const TO_EMAIL = Deno.env.get('TO_EMAIL');
 
 interface EmailRequest {
   name: string;
@@ -54,13 +55,14 @@ const handler = async (request: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: 'SharedLists App <no-reply@sharedlists.app>',
-        to: ['sandymc@gmail.com'],
-        subject: 'New Account Request',
-        html: `
-          <h2>New Account Request</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-        `,
+        to: [TO_EMAIL],
+        template: {
+          id: "new-account-request",
+          variables: {
+            name,
+            email,
+          }
+        }
       }),
     });
 
